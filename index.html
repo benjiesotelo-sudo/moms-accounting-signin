@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-wWINjlA1Tef7oHM3mKkIF8ZzsKZtnoJ3xkf0d8b8zuk='; style-src 'sha256-8GJ4pr+1scGe+pgqk0opZ5x0oMW8Us/9/J370Mo7L7A='; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mom's Accounting: signing in</title>
+<style>body{font:17px/1.5 -apple-system,system-ui,sans-serif;margin:3em auto;max-width:32em;padding:0 1em;color:#222}</style>
+</head>
+<body>
+<p id="said">Signing you in to Mom's Accounting...</p>
+<script>
+(function () {
+  var allowed = [/^https:\/\/[a-z0-9-]{1,63}\.[a-z0-9-]{1,63}\.ts\.net$/, /^http:\/\/(localhost|127\.0\.0\.1):[0-9]{2,5}$/];
+  var query = new URLSearchParams(location.search);
+  var state = query.get("state") || "";
+  var dot = state.indexOf(".");
+  var origin = "";
+  function say(text) { document.getElementById("said").textContent = text; }
+  try { origin = dot > 0 ? atob(state.slice(0, dot).replace(/-/g, "+").replace(/_/g, "/")) : ""; } catch (e) { origin = ""; }
+  if (!allowed.some(function (r) { return r.test(origin); })) {
+    say("This page only hands a Google sign-in back to Mom's Accounting. Open the app and tap Sign in with Google there.");
+    return;
+  }
+  var scopes = (query.get("scope") || "").split(/\s+/);
+  if (scopes.some(function (s) { return /^https:\/\/www\.googleapis\.com\/auth\/drive(\.|$)/.test(s); })) {
+    say("This page never hands on access to a Google Drive. Open Mom's Accounting and tap Sign in with Google there.");
+    return;
+  }
+  location.replace(origin + "/auth/google/callback" + location.search);
+})();
+</script>
+</body>
+</html>
